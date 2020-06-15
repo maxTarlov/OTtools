@@ -42,5 +42,5 @@ function edgePhenomenon(side, candidate, category, target){
             result.push(edgeNodeOf(node));
         }
     });
-    return result;
+    return result.length ? result : false;
 }
