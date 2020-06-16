@@ -4,30 +4,35 @@ def warn(warning):
     return True
     #TODO perhapse made this mutable and add interactive capabilities
 
-class Candidate:
-    def __init__(self, id):
-        self.id = str(id)
+class OTobject:
+    def __init__(self, value):
+        self.id = str(value)
+        self.value = value
     def __str__(self):
         return self.id
-    #TODO enrich repr
+    #TODO add __repr__
 
-class Constraint:
-    def __init__(self, id):
-        self.id = str(id)
-    def __str__(self):
-        return self.id
-    #TODO enrich repr
+class Candidate(OTobject):
+    def foo(self):
+        pass
+
+class Constraint(OTobject):
+    def foo(self):
+        pass
 
 class Tableaux:
     def __init__(self, matrix):
         self.input = matrix[0][0]
-        self.constraints = [Constraint(i) for i in matrix[0][1:]]
-        self.candidates = [Candidate(i[0]) for i in matrix[1:]]
         self.violations = [i[1:] for i in matrix[1:]]
-        self._matrix = [[self.input] + [i for i in self.constraints]]
-        self._matrix += [[j] + v for j, v in zip(self.candidates, self.violations)]
+        self.constraintSet = [Constraint(i) for i in matrix[0][1:]]
+        self.candidateSet = [Candidate(i[0]) for i in matrix[1:]]
+        self.constraints = {c: v for c, v in zip(self.constraintSet, self.violations)}
+        #self.candidates = {c: v for c, v in zip(self.candidateSet, )}
+        self._matrixRows = [[self.input] + [i for i in self.constraintSet]]
+        self._matrixRows += [[j] + v for j, v in zip(self.candidateSet, self.violations)]
+        #self._matrixColumns = 
     def __str__(self):
-        result = [[str(i) for i in j] for j in self._matrix]
+        result = [[str(i) for i in j] for j in self._matrixRows]
         return str(result)
 
 foo = Tableaux([[0, 1, 2, 3, 4],
