@@ -1,0 +1,20 @@
+
+,,,alignLeft(xp),alignRight(xp),wrap(xp),binMinBranches(phi),binMaxBranches(phi)
+"[[workers] [helped]]","{(workers) (helped)}","",0,0,1,2,0
+"","{(workers helped)}","",1,1,0,0,0
+"[[show [[workers] [dog]]]]","{(show) (workers) (dog)}","",0,0,3,3,0
+"","{(show) (workers dog)}","",1,1,2,1,0
+"","{(show workers) (dog)}","",2,0,3,1,0
+"","{(show workers dog)}","",3,1,0,0,1
+"[[[workers] [mature]] [helped]]","{(workers) (mature) (helped)}","",0,0,2,3,0
+"","{(workers) (mature helped)}","",1,2,2,1,0
+"","{(workers mature) (helped)}","",1,1,1,1,0
+"","{(workers mature helped)}","",2,3,0,0,1
+"[[[give [[worker] [chair]]] [slowly]]]","{(give) (worker) (chair) (slowly)}","",0,0,4,4,0
+"","{(give) (worker) (chair slowly)}","",1,3,4,2,0
+"","{(give) (worker chair) (slowly)}","",1,1,3,2,0
+"","{(give) (worker chair slowly)}","",2,4,3,1,1
+"","{(give worker) (chair) (slowly)}","",2,0,4,2,0
+"","{(give worker) (chair slowly)}","",3,3,4,0,0
+"","{(give worker chair) (slowly)}","",3,1,2,1,1
+"","{(give worker chair slowly)}","",4,4,0,0,1

@@ -5,9 +5,9 @@ def warn(warning):
     #TODO perhapse made this mutable and add interactive capabilities
 
 class OTobject:
-    """Metaclass for expected contents of a Tableaux instance
+    """Metaclass for expected contents of a Tableau instance
     
-    Ensures that contents of a Tableaux instance support string casting
+    Ensures that contents of a Tableau instance support string casting
 
     Attrabutes:
         value (any): python representation of the object.
@@ -31,6 +31,7 @@ class Candidate(OTobject):
     """Extends OTobject
 
     Nothing extra yet.
+    TODO: Add property self.optimal and 
     """
     def foo(self):
         pass
@@ -43,9 +44,10 @@ class Constraint(OTobject):
     def foo(self):
         pass
 
-class Tableaux:
+class Tableau:
+    """Datatype for an OT violation Tableau
     """
-    """
+
     def __init__(self, matrix):
         self.input = matrix[0][0]
         self.violations = [i[1:] for i in matrix[1:]]
@@ -71,11 +73,46 @@ class OTsystem:
         return self._map[key]
     @classmethod
     def fromOTW(cls, filepath):
-        pass
+        """OTsystem constructor that accepts csv file in OTWorkplace layout
 
+        Parameter: filepath (str): path of the OTW file
 
-foo = Tableaux([[0, 1, 2, 3, 4],
+        Expected layout of file:
+            '', ...
+            '',       '', '',           'constraint1', 'constraint2', ...
+            'input1', 'candidateA', '', 'violations',  'violations',  ...
+            '',       'candidateB', '', 'violations',  'violations',  ...
+            :
+            :
+            'inputN', 'candidateA', '', 'violations',  'violations',  ...
+            :
+            :
+            newline
+        
+        TODO: add csv reading options, add support for optima
+        """
+
+        import csv
+        
+        matricies = []
+
+        with open(filepath) as csv_file:
+            csv_reader = list(csv.reader(csv_file))
+            constraintSet = csv_reader[1][3:]
+            this_matrix = [[csv_reader[2][0]] + constraintSet]
+
+            for row in csv_reader[3:]:
+                if len(row[0]):
+                    matricies.append(this_matrix)
+                    this_matrix = [[row[0]] + constraintSet]
+                this_matrix.append([row[1]] + row[3:])
+
+        tableaux = [Tableau(i) for i in matricies]
+        return cls(tableaux)
+
+foo = Tableau([[0, 1, 2, 3, 4],
                 [5, 6, 7, 8, 9],
                 [10, 11, 12, 13, 14]])
 
-print(OTsystem([foo]))
+bar = OTsystem.fromOTW('shortVT.csv')
+print(bar['[[workers] [helped]]'])
