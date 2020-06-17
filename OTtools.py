@@ -100,6 +100,7 @@ class OTsystem:
             csv_reader = list(csv.reader(csv_file))
             constraintSet = csv_reader[1][3:]
             this_matrix = [[csv_reader[2][0]] + constraintSet]
+            this_matrix.append([csv_reader[2][1]] + csv_reader[2][3:])
 
             for row in csv_reader[3:]:
                 if len(row[0]):
@@ -115,4 +116,4 @@ foo = Tableau([[0, 1, 2, 3, 4],
                 [10, 11, 12, 13, 14]])
 
 bar = OTsystem.fromOTW('shortVT.csv')
-print(bar['[[workers] [helped]]'])
+print(bar['[[workers] [helped]]'].violations)
