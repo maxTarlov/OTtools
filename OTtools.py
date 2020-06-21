@@ -46,13 +46,35 @@ class Constraint(OTobject):
 
 class Tableau:
     """Datatype for an OT violation Tableau
+
+    Properties:
+        input (any): input to the tableau
+        violations (list): 2D array of violation counts
+        constraintSet (list): Constraint objects in the tableau
+        constraints (dict): constraint : violations for constraint
+        candidateSet (list): Candidate objects in the tableau
+        TODO:
+        candidates (dict): candidate : violations for candidate
+        _matrixColumns (list)
+        test _matrixRows
     """
 
     def __init__(self, matrix):
+        """Default Tableau constructor
+
+        Parameter: matrix (list): expected form:
+        [[input,     constraint1, ... constraintN],
+         [candiateA, violations,  ... violations],
+         :
+         :
+         [candidateN, violations, ... violations]
+        ]
+        """
         self.input = matrix[0][0]
         self.violations = [i[1:] for i in matrix[1:]]
         self.constraintSet = [Constraint(i) for i in matrix[0][1:]]
         self.candidateSet = [Candidate(i[0]) for i in matrix[1:]]
+        #this might need to be cast to a string:
         self.constraints = {c: v for c, v in zip(self.constraintSet, self.violations)}
         #self.candidates = {c: v for c, v in zip(self.candidateSet, )}
         self._matrixRows = [[self.input] + [i for i in self.constraintSet]]
@@ -116,4 +138,4 @@ foo = Tableau([[0, 1, 2, 3, 4],
                 [10, 11, 12, 13, 14]])
 
 bar = OTsystem.fromOTW('shortVT.csv')
-print(bar['[[workers] [helped]]'].violations)
+print(bar['[[workers] [helped]]'])
