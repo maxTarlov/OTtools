@@ -1,0 +1,20 @@
+
+,,,constraintA ,constraintB,constraintC,constraintD,constraintE
+"input1","candidateA","",0,1,2,3,4
+"","candidateB","",1,2,3,4,0
+"input2","candidateA","",0,1,2,3,4
+"","candidateB","",1,2,3,4,0
+"","candidateC","",2,3,4,0,1
+"","candidateD","",3,4,0,1,2
+"input3","candidateA","",0,1,2,3,4
+"","candidateB","",1,2,3,4,0
+"","candidateC","",2,3,4,0,1
+"","candidateD","",3,4,0,1,2
+"input4","candidateA","",0,1,2,3,4
+"","candidateB","",1,2,3,4,0
+"","candidateC","",2,3,4,0,1
+"","candidateD","",3,4,0,1,2
+"","candidateE","",4,0,1,2,3
+"","candidateF","",5,1,2,2,0
+"","candidateG","",6,2,1,0,1
+"","candidateH","",7,1,0,1,1
