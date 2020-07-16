@@ -96,6 +96,7 @@ class Tableau(OTobject):
         return result
 
     def getLEGs(self):
+        raise Exception('Unfinished method')
         result = []
         if len(self.constraints) > 1:
             for c in self.constraints:
@@ -107,6 +108,9 @@ class Tableau(OTobject):
 class OTsystem:
     def getConstraintList(self):
         return self.tableaux[0].getConstraintList()
+
+    def getOptima(self):
+        return OTsystem([Tableau(t.input, t.constraints, t.getOptima()) for t in self.tableaux])
 
     def __init__(self, tableaux):
         self.tableaux = tableaux
@@ -158,7 +162,7 @@ class OTsystem:
 
 
 if __name__ == '__main__':
-    system = OTsystem.fromOTW('testVT.csv')
+    system = OTsystem.fromOTW('./testing/testVT.csv')
     assert len(system.tableaux) == 4
     assert len(system.getConstraintList()) == 5
     assert len(system.tableaux[0].candidates) == 2
@@ -166,8 +170,10 @@ if __name__ == '__main__':
     assert len(LEG.fromTableau(system.tableaux[0]).candidates) == 2
     #print(system.tableaux[0].candidates[0])
     #print(LEG.fromTableau(system.tableaux[3]).evaluate()[0])
-    print(system.tableaux[0].getLEGs())
-    system.toOTW('testExport.csv')
+    #print(system.tableaux[0].getLEGs())
+    optima = system.getOptima()
+    print([[c.value for c in t.candidates] for t in optima.tableaux])
+    system.toOTW('./testing/testExport.csv')
     print('green')
 
         
