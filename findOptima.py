@@ -15,6 +15,6 @@ system = OTtools.OTsystem.fromOTW(filePath)
 
 optimized = system.getOptima()
 
-optimized.toOTW('optimized_' + filePath)
+optimized.toOTW('./optima.csv')
 
 print('done')
