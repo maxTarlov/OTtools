@@ -1,22 +1,7 @@
-# Restarting OTtools
-import unittest
-
 class TableauObject:
-    _keyType = object  
-
     def __init__(self, value):
         self.value = value
-        self.violations = None
-
-    def setViolations(self, violations):
-        if self.violations:
-            pass
-            #TODO: raise an exception
-        else:
-            for k, v in violations.items():
-                assert isinstance(k, self._keyType)
-                assert isinstance(v, int)
-            self.violations = violations
+        self.violations = {}
 
     def __str__(self):
         return str(self.value)
@@ -26,17 +11,29 @@ class Candidate(TableauObject):
     # _keyType defined below
 
 class Constraint(TableauObject):
-    # _keyType defined below
+    def setViolations(self, violations):
+        if self.violations:
+            pass
+            #TODO: raise an exception
+        else:
+            for k, v in violations.items():
+                assert isinstance(k, Candidate)
+                assert isinstance(v, int)
+            self.violations = violations
+    def addViolations(self, violations):
+        for k, v in violations.items():
+            assert k not in self.violations.keys()
+            assert isinstance(k, Candidate)
+            assert isinstance(v, int)
+            self.violations[k] = v
+    
     def filter(self, candidates):
-        minimum = min([c.violations[self] for c in candidates])
+        minimum = min([self.violations[c] for c in candidates])
         result = []
         for c in candidates:
             if self.violations[c] == minimum:
                 result.append(c)
         return result
-
-Candidate._keyType = Constraint
-Constraint._keyType = Candidate
 
 class OTobject:
     def __init__(self, input, constraints, candidates):
@@ -47,13 +44,6 @@ class OTobject:
         self.constraints = constraints
         for c in constraints:
             assert isinstance(c, Constraint)
-        
-        if candidates[0].violations and not constraints[0].violations:
-            for con in constraints:
-                con.setViolations({can: can.violations[con] for can in candidates})
-        elif constraints[0].violations and not candidates[0].violations:
-            for can in candidates:
-                can.setViolations({con: con.violations[can] for con in constraints})
 
     @classmethod
     def fromMatrix(cls, matrix):
@@ -61,7 +51,8 @@ class OTobject:
         constraints = [Constraint(con) for con in matrix[0][1:]]
         candidates = [Candidate(row[0]) for row in matrix[1:]]
         for can, row in zip(candidates, matrix[1:]):
-            can.setViolations({con: int(v) for con, v in zip(constraints, row[1:])})
+            for con, violations in zip(constraints, row[1:]):
+                con.addViolations({can: int(violations)})
         return cls(input, constraints, candidates)
 
     def getConstraintList(self):
@@ -162,7 +153,8 @@ class OTsystem:
 
 
 if __name__ == '__main__':
-    """
+    import unittest
+
     system = OTsystem.fromOTW('./testing/testVT.csv')
     assert len(system.tableaux) == 4
     assert len(system.getConstraintList()) == 5
@@ -176,7 +168,6 @@ if __name__ == '__main__':
     print([[c.value for c in t.candidates] for t in optima.tableaux])
     system.toOTW('./testing/testExport.csv')
     print('green')
-    """
 
     nGX = OTsystem.fromOTW('./testing/nGX.csv')
     tab = nGX.tableaux[1]
