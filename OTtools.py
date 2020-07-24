@@ -30,8 +30,8 @@ class Constraint(TableauObject):
     def filter(self, candidates):
         minimum = min([c.violations[self] for c in candidates])
         result = []
-        for c, v in self.violations.items():
-            if v == minimum:
+        for c in candidates:
+            if self.violations[c] == minimum:
                 result.append(c)
         return result
 
@@ -162,6 +162,7 @@ class OTsystem:
 
 
 if __name__ == '__main__':
+    """
     system = OTsystem.fromOTW('./testing/testVT.csv')
     assert len(system.tableaux) == 4
     assert len(system.getConstraintList()) == 5
@@ -175,5 +176,10 @@ if __name__ == '__main__':
     print([[c.value for c in t.candidates] for t in optima.tableaux])
     system.toOTW('./testing/testExport.csv')
     print('green')
+    """
 
+    nGX = OTsystem.fromOTW('./testing/nGX.csv')
+    tab = nGX.tableaux[1]
+    optima = tab.getOptima()
+    print([__.value for __ in optima])
         
