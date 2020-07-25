@@ -158,6 +158,28 @@ if __name__ == '__main__':
     import unittest
     #logging.basicConfig(level=logging.DEBUG)
 
+    class TestConstraint(unittest.TestCase):
+        def setUp(self):
+            self.candidate = Candidate('Test')
+            self.constraint = Constraint('Test')
+
+        def test__init__(self):
+            self.assertIsNotNone(Constraint(''))
+            self.assertRaises(Exception, Constraint, 'Test', violations={'String': 0})
+            self.assertRaises(Exception, Constraint, 'Test', violations={self.constraint: 'String'})
+
+        def test_addViolations(self):
+            self.constraint2 = Constraint('Test')
+            
+            self.constraint2.addViolations({Candidate('Test'): 0})
+            self.assertNotEqual(self.constraint.violations, self.constraint2.violations)
+
+            self.assertRaises(Exception, self.constraint.addViolations, {'String': 0})
+            self.assertRaises(Exception, self.constraint.addViolations, {Candidate('Test'): '0'})
+
+        def test_filter(self):
+            pass
+
     class TestOTsystem(unittest.TestCase):
         def test_01_fromOTW(self):
             #setup
@@ -198,7 +220,7 @@ if __name__ == '__main__':
                     self.assertIn(optimum, original.candidates)
 
 
-    unittest.main(failfast=True)
+    unittest.main()
             
     #self.assertTrue(len(LEG.fromTableau(system.tableaux[0]).candidates) == 2)
     #print(system.tableaux[0].candidates[0])
