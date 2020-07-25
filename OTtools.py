@@ -1,25 +1,25 @@
+import logging
+
 class TableauObject:
     def __init__(self, value):
         self.value = value
-        self.violations = {}
 
     def __str__(self):
         return str(self.value)
 
 class Candidate(TableauObject):
     pass
-    # _keyType defined below
 
 class Constraint(TableauObject):
-    def setViolations(self, violations):
-        if self.violations:
-            pass
-            #TODO: raise an exception
-        else:
-            for k, v in violations.items():
-                assert isinstance(k, Candidate)
-                assert isinstance(v, int)
-            self.violations = violations
+    def __init__(self, value, violations=None):
+        self.value = value
+        if not violations:
+            violations = {}
+        for k, v in violations.items():
+            assert isinstance(k, Candidate)
+            assert isinstance(v, int)
+        self.violations = violations
+
     def addViolations(self, violations):
         for k, v in violations.items():
             assert k not in self.violations.keys()
@@ -48,10 +48,12 @@ class OTobject:
     @classmethod
     def fromMatrix(cls, matrix):
         input = matrix[0][0]
+        logging.debug('Input: ' + str(input))
         constraints = [Constraint(con) for con in matrix[0][1:]]
         candidates = [Candidate(row[0]) for row in matrix[1:]]
         for can, row in zip(candidates, matrix[1:]):
             for con, violations in zip(constraints, row[1:]):
+                logging.debug('{}({}): {}'.format(str(con), str(can), str(violations)))
                 con.addViolations({can: int(violations)})
         return cls(input, constraints, candidates)
 
@@ -154,16 +156,46 @@ class OTsystem:
 
 if __name__ == '__main__':
     import unittest
+    #logging.basicConfig(level=logging.DEBUG)
 
-    system = OTsystem.fromOTW('./testing/testVT.csv')
-    assert len(system.tableaux) == 4
-    assert len(system.getConstraintList()) == 5
-    assert len(system.tableaux[0].candidates) == 2
-    assert len(system.tableaux[3].candidates) == 8
-    assert len(LEG.fromTableau(system.tableaux[0]).candidates) == 2
+    class TestOTsystem(unittest.TestCase):
+        def test_01_fromOTW(self):
+            #setup
+            self.system = OTsystem.fromOTW('./testing/testVT.csv')
+
+            self.assertEqual(len(self.system.tableaux), 4)
+            self.assertEqual(len(self.system.getConstraintList()), 5)
+            self.assertEqual(len(self.system.tableaux[0].candidates), 2)
+            self.assertEqual(len(self.system.tableaux[1].candidates), 4)
+            self.assertEqual(len(self.system.tableaux[2].candidates), 4)
+            self.assertEqual(len(self.system.tableaux[3].candidates), 8)
+        
+        def test_02_toOTW(self):
+            #make sure the exported file works in otw, then assert import/export equal
+            pass
+
+        def test_03_getOptima(self):
+            #setup
+            self.system = OTsystem.fromOTW('./testing/nGX.csv')
+            self.optima = self.system.getOptima()
+
+            self.assertEqual(len(self.optima.tableaux[0].candidates), 2)
+            self.assertEqual(len(self.optima.tableaux[1].candidates), 8)
+            self.assertEqual(len(self.optima.tableaux[2].candidates), 6)
+            self.assertEqual(len(self.optima.tableaux[3].candidates), 12)
+
+            for optimal, original in zip(self.optima.tableaux, self.system.tableaux):
+                for optimum in optimal.candidates:
+                    self.assertIn(optimum, original.candidates)
+
+  
+    unittest.main()
+            
+    #self.assertTrue(len(LEG.fromTableau(system.tableaux[0]).candidates) == 2)
     #print(system.tableaux[0].candidates[0])
     #print(LEG.fromTableau(system.tableaux[3]).evaluate()[0])
     #print(system.tableaux[0].getLEGs())
+    """
     optima = system.getOptima()
     print([[c.value for c in t.candidates] for t in optima.tableaux])
     system.toOTW('./testing/testExport.csv')
@@ -173,4 +205,5 @@ if __name__ == '__main__':
     tab = nGX.tableaux[1]
     optima = tab.getOptima()
     print([__.value for __ in optima])
+    """
         
