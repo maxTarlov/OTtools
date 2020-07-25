@@ -169,6 +169,15 @@ if __name__ == '__main__':
             self.assertEqual(len(self.system.tableaux[1].candidates), 4)
             self.assertEqual(len(self.system.tableaux[2].candidates), 4)
             self.assertEqual(len(self.system.tableaux[3].candidates), 8)
+
+            for tableau in self.system.tableaux:
+                #validate special properties of violations in ./testing/testVT.csv
+                for candidate, index in zip(tableau.candidates, range(len(tableau.candidates))):
+                    checkInt = tableau.constraints[0].violations[candidate]
+                    self.assertEqual(checkInt, index)
+                    for violations in [con.violations[candidate] for con in tableau.constraints[1:]]:
+                        self.assertTrue(violations > checkInt or violations == 0)
+                        checkInt = violations
         
         def test_02_toOTW(self):
             #make sure the exported file works in otw, then assert import/export equal
@@ -188,8 +197,8 @@ if __name__ == '__main__':
                 for optimum in optimal.candidates:
                     self.assertIn(optimum, original.candidates)
 
-  
-    unittest.main()
+
+    unittest.main(failfast=True)
             
     #self.assertTrue(len(LEG.fromTableau(system.tableaux[0]).candidates) == 2)
     #print(system.tableaux[0].candidates[0])

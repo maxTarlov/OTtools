@@ -15,6 +15,6 @@
 "","candidateC","",2,3,4,0,1
 "","candidateD","",3,4,0,1,2
 "","candidateE","",4,0,1,2,3
-"","candidateF","",5,1,2,2,0
-"","candidateG","",6,2,1,0,1
-"","candidateH","",7,1,0,1,1
+"","candidateF","",5,6,7,8,0
+"","candidateG","",6,7,8,0,1
+"","candidateH","",7,8,0,1,2
