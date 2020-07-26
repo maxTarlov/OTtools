@@ -7,11 +7,11 @@ OTtools provides some classes for working with Optimality Theory data in Python.
 ## Why OTtools Exists
 OTtools is primarily a constructed motivation for the author to practice Python, but it is also intended to provide a convenient means of accomplishing certain tasks related to Optimality Theory research. The following basic example illustrates the utility of OTtools:
 
-* [SPOT](https://github.com/syntax-prosody-ot/main) (Bellik et al.) can produce tableaux with millions of constraints.
+* [SPOT](https://github.com/syntax-prosody-ot/main) (Bellik et al.) can produce tableaux with millions of candidates.
 * The output for SPOT is formatted for import into [OTWorkplace](https://sites.google.com/site/otworkplace/) (Prince et al.) where it can be analyzed.
 * OTWorkplace is built on Microsoft Excel and each candidate in a tableau requires its own row in an Excel worksheet.
 * OTWorkplace therefore cannot import tableaux with more candidates than the row limit of Excel (1,048,576).
-* OTtools can pair down large tableaux of this sort by removing harmonically bounded candidates so the relevant candidates can be analyzed in OTWorkplace.
+* OTtools can pare down large tableaux of this sort by removing harmonically bounded candidates so the relevant candidates can be analyzed in OTWorkplace.
 
 ## How to Install and Use OTtools
 At the moment, OTtools is only available by cloning the [GitHub repository](https://github.com/maxTarlov/OTtools). Updating to the [latest version of Python](https://www.python.org/downloads/) is recommended.
