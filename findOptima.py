@@ -2,19 +2,20 @@
 
 import OTtools
 
-filePath = None
-defaultFile = './SPOT_Results.csv'
+defaultFile = './testing/nGX.csv'
 
-if not filePath:
-    filePath = input('Choose a file: ')
+# find the OTWorkplace formatted file to import
+filePath = input('Choose a file: ') or defaultFile
 
-if not filePath:
-    filePath = defaultFile
-
+# import the OTWorkplace formatted file as an OTsystem
+# an OTsystem instance consists of one or more Tableaux, each with one input/UR, a set of candidates
+# a set of constraints and violations. Eeach Tableau must share the same constraints, at least in name.
 system = OTtools.OTsystem.fromOTW(filePath)
 
+# OTtools.OTsystem.getOptima() returns a new OTsystem with harminically bounded candidates removed.
 optimized = system.getOptima()
 
+# Export the new OTsytem to a file readable by OTWorkplace
 optimized.toOTW('./optima.csv')
 
 print('done')

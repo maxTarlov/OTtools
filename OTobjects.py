@@ -1,17 +1,26 @@
 import logging
 
 class TableauObject:
+    """Metaclass for objects contained in an OTtable"""
+
     def __init__(self, value):
+        """value can be of any type, but must be able to cast to str"""
         self.value = value
 
     def __str__(self):
         return str(self.value)
 
 class Candidate(TableauObject):
+    """Representaion of a candidate"""
+
     pass
 
 class Constraint(TableauObject):
+    """Representation of a constraint and mapping of candidate to violations"""
+
     def __init__(self, value, violations=None):
+        """value must be castable to str, violations: {Candidate: int, }"""
+
         self.value = value
         if not violations:
             violations = {}
@@ -21,6 +30,8 @@ class Constraint(TableauObject):
         self.violations = violations
 
     def addViolations(self, violations):
+        """violations: {Candidate: int, }"""
+
         assert violations.items()
         for k, v in violations.items():
             assert k not in self.violations.keys()
@@ -29,6 +40,8 @@ class Constraint(TableauObject):
             self.violations[k] = v
     
     def filter(self, candidates):
+        """Returns subset of provided candidates with minimum number of violations"""
+
         minimum = min([self.violations[c] for c in candidates])
         result = []
         for c in candidates:
@@ -38,7 +51,11 @@ class Constraint(TableauObject):
         return result
 
 class OTtable:
+    """Metaclass relating input/UR, candidates, constraints and violations"""
+
     def __init__(self, input, constraints, candidates):
+        """input: any, constraints: [Constraint, ], candidates: [Candidates, ]"""
+
         self.input = input
         self.candidates = candidates
         for c in candidates:
@@ -49,6 +66,12 @@ class OTtable:
 
     @classmethod
     def fromMatrix(cls, matrix):
+        """
+        matrix: [[input/UR, Constraint, ...],
+                 [Canidate, violations (int), ...],
+                ...]
+        """
+
         input = matrix[0][0]
         logging.debug('Input: ' + str(input))
         constraints = [Constraint(con) for con in matrix[0][1:]]
@@ -60,6 +83,8 @@ class OTtable:
         return cls(input, constraints, candidates)
 
     def getConstraintList(self):
+        """Return list of constraints in string form"""
+
         return [str(c) for c in self.constraints]
 
 if __name__ == '__main__':
@@ -104,3 +129,4 @@ if __name__ == '__main__':
             self.assertEqual(len(self.constraint.filter(self.onePassing)), 1)
 
     unittest.main()
+    
