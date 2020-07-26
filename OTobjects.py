@@ -129,3 +129,4 @@ if __name__ == '__main__':
             self.assertEqual(len(self.constraint.filter(self.onePassing)), 1)
 
     unittest.main()
+    
