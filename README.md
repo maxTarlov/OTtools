@@ -1,5 +1,5 @@
 # OTtools
-OTtools provides some classes for working with Optimality Theory data in Python.
+OTtools provides some structures for working with Optimality Theory data in Python.
 
 ## What OTtools is
 "*Optimality Theory is a general model of how grammars are structured*" ([McCarthy 2007](https://scholarworks.umass.edu/linguist_faculty_pubs/93/)). OTtools provides Python representations for the structures hypothesized in [Optimality Theory: Constraint Interactions in Generative Grammar](http://roa.rutgers.edu/article/view/547) (Prince and Smolensky 2002) and other works stemming from this area of Linguistics. If you want to learn more about Optimality Theory, [What is Optimality Theory?](https://scholarworks.umass.edu/linguist_faculty_pubs/93/) (McCarthy 2007) is a  good place to start, but Optimality Theory and OTtools likely won't make much sense without a solid understanding of Linguistics in general and Generative Phonology more specifically.
