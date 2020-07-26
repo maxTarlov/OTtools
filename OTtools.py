@@ -21,6 +21,7 @@ class Constraint(TableauObject):
         self.violations = violations
 
     def addViolations(self, violations):
+        assert violations.items()
         for k, v in violations.items():
             assert k not in self.violations.keys()
             assert isinstance(k, Candidate)
@@ -33,6 +34,7 @@ class Constraint(TableauObject):
         for c in candidates:
             if self.violations[c] == minimum:
                 result.append(c)
+        assert len(result)
         return result
 
 class OTobject:
@@ -166,19 +168,34 @@ if __name__ == '__main__':
         def test__init__(self):
             self.assertIsNotNone(Constraint(''))
             self.assertRaises(Exception, Constraint, 'Test', violations={'String': 0})
-            self.assertRaises(Exception, Constraint, 'Test', violations={self.constraint: 'String'})
+            self.assertRaises(Exception, Constraint, 'Test', violations={self.candidate: 'String'})
 
         def test_addViolations(self):
             self.constraint2 = Constraint('Test')
             
-            self.constraint2.addViolations({Candidate('Test'): 0})
+            self.constraint2.addViolations({self.candidate: 0})
             self.assertNotEqual(self.constraint.violations, self.constraint2.violations)
 
+            self.assertRaises(Exception, self.constraint.addViolations, 0)
             self.assertRaises(Exception, self.constraint.addViolations, {'String': 0})
-            self.assertRaises(Exception, self.constraint.addViolations, {Candidate('Test'): '0'})
+            self.assertRaises(Exception, self.constraint.addViolations, {self.candidate: '0'})
 
         def test_filter(self):
-            pass
+            self.candidate = lambda : Candidate('Test')
+            self.allPassing = {self.candidate(): __ for __ in [0, 0, 0, 0, 0]}
+            self.mostPassing = {self.candidate(): __ for __ in [0, 0, 0, 1, 1]}
+            self.somePassing = {self.candidate(): __ for __ in [0, 0, 1, 1, 1]}
+            self.onePassing = {self.candidate(): __ for __ in range(5)}
+
+            self.constraint.addViolations(self.allPassing)
+            self.constraint.addViolations(self.mostPassing)
+            self.constraint.addViolations(self.somePassing)
+            self.constraint.addViolations(self.onePassing)
+
+            self.assertEqual(len(self.constraint.filter(self.allPassing)), 5)
+            self.assertEqual(len(self.constraint.filter(self.mostPassing)), 3)
+            self.assertEqual(len(self.constraint.filter(self.somePassing)), 2)
+            self.assertEqual(len(self.constraint.filter(self.onePassing)), 1)
 
     class TestOTsystem(unittest.TestCase):
         def test_01_fromOTW(self):
@@ -226,15 +243,4 @@ if __name__ == '__main__':
     #print(system.tableaux[0].candidates[0])
     #print(LEG.fromTableau(system.tableaux[3]).evaluate()[0])
     #print(system.tableaux[0].getLEGs())
-    """
-    optima = system.getOptima()
-    print([[c.value for c in t.candidates] for t in optima.tableaux])
-    system.toOTW('./testing/testExport.csv')
-    print('green')
-
-    nGX = OTsystem.fromOTW('./testing/nGX.csv')
-    tab = nGX.tableaux[1]
-    optima = tab.getOptima()
-    print([__.value for __ in optima])
-    """
         
