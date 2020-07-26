@@ -29,7 +29,7 @@ New GitHub Issues and Pull Requests are welcome. Please follow the guidelines be
 4. If you want to contribute to the source code, either find an existing issue or create your own and make sure the issue you are working your involvement. Open a pull request once you are done and mention the issue(s) in the description. Additionally, keep in mind the following things:
 
     * OTtools is structured with intention. Endeavor to understand why something is structured the way it is before changing its structure. 
-    * OTtools uses Python's build-in unittest module. Ideally, each class should have a test case and each method in that class should have a test fixture.
+    * OTtools uses Python's built-in unittest module. Ideally, each class should have a test case and each method in that class should have a test fixture.
     * Feel free to ask for help.
 
 ## License
