@@ -2,11 +2,16 @@ import OTobjects
 from OTobjects import Candidate, Constraint
 
 class LEG(OTobjects.OTtable):
+    """Linear Extenion of Grammar. OTtable with linearly ordered constraints"""
+    
+    #Move to Tableau?
     @classmethod
     def fromTableau(cls, tableau):
         return cls(tableau.input, tableau.constraints, tableau.candidates)
     
     def evaluate(self):
+        """Return list of optimal candidates under this ordering"""
+
         passing = self.constraints[0].filter(self.candidates)
         if len(self.constraints) > 1 and len(passing) > 1:
             return LEG(self.input, self.constraints[1:], passing).evaluate()
@@ -14,7 +19,11 @@ class LEG(OTobjects.OTtable):
             return passing
 
 class Tableau(OTobjects.OTtable):
+    """OTtable with unordered constraint set"""
+
     def getOptima(self):
+        """Return list of possible optima as arise from every inear order"""
+
         optima = []
         for c in self.constraints:
             passing = c.filter(self.candidates)
@@ -40,13 +49,21 @@ class Tableau(OTobjects.OTtable):
         return [LEG.fromTableau(t) for t in result]
 
 class OTsystem:
+    """A collection of Tableau instances with the same constraint sets"""
+
     def getConstraintList(self):
+        """Return the list of constraints shared by all Tableau instances"""
+
         return self.tableaux[0].getConstraintList()
 
     def getOptima(self):
+        """Return a new OTsystem with only possible optima in each Tableau"""
+
         return OTsystem([Tableau(t.input, t.constraints, t.getOptima()) for t in self.tableaux])
 
     def __init__(self, tableaux):
+        """tableaux: [Tableau, ], all must have the equivilant constraint sets"""
+
         self.tableaux = tableaux
         for t in self.tableaux:
             #maybe this should be value instead of string
@@ -54,6 +71,8 @@ class OTsystem:
 
     @classmethod
     def fromOTW(cls, filepath):
+        """Return new OTsystem parsed from OTWorkplace formatted file"""
+
         import csv
         
         matricies = []
@@ -83,6 +102,8 @@ class OTsystem:
             csv_writer.writerow(['', str(cand), ''] + violations)
 
     def toOTW(self, filepath):
+        """Export to OTWorkplace compatable file"""
+
         import csv
 
         with open(filepath, 'w', newline='') as csv_file:
