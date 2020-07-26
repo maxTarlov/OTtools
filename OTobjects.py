@@ -1,6 +1,12 @@
 import logging
 
 class TableauObject:
+    """
+    Metaclass for objects contained in an OT
+    
+    Ensures that contents of an OTtable support string casting
+    """
+
     def __init__(self, value):
         self.value = value
 
@@ -8,9 +14,28 @@ class TableauObject:
         return str(self.value)
 
 class Candidate(TableauObject):
+    """
+    Representaion of a candidate in Optimality Theory
+    
+    Subclasses TableauObject, contained in Constraint and OTtable
+    """
+
     pass
 
 class Constraint(TableauObject):
+    """
+    Representation of a constraint and its evaluation of candidates in OT
+
+    Subclasses TableauObject, contained in OTtable, contains Candidate
+    
+    Attributes: 
+        value: usually the constraint name
+        violations: mapping of Candidate instances to violation counts (integers)
+
+    Methods:
+        addViolations
+    """
+
     def __init__(self, value, violations=None):
         self.value = value
         if not violations:
