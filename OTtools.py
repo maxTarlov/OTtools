@@ -1,42 +1,41 @@
-# Restarting OTtools
-import unittest
+import logging
 
 class TableauObject:
-    _keyType = object  
-
     def __init__(self, value):
         self.value = value
-        self.violations = None
-
-    def setViolations(self, violations):
-        if self.violations:
-            pass
-            #TODO: raise an exception
-        else:
-            for k, v in violations.items():
-                assert isinstance(k, self._keyType)
-                assert isinstance(v, int)
-            self.violations = violations
 
     def __str__(self):
         return str(self.value)
 
 class Candidate(TableauObject):
     pass
-    # _keyType defined below
 
 class Constraint(TableauObject):
-    # _keyType defined below
+    def __init__(self, value, violations=None):
+        self.value = value
+        if not violations:
+            violations = {}
+        for k, v in violations.items():
+            assert isinstance(k, Candidate)
+            assert isinstance(v, int)
+        self.violations = violations
+
+    def addViolations(self, violations):
+        assert violations.items()
+        for k, v in violations.items():
+            assert k not in self.violations.keys()
+            assert isinstance(k, Candidate)
+            assert isinstance(v, int)
+            self.violations[k] = v
+    
     def filter(self, candidates):
-        minimum = min([c.violations[self] for c in candidates])
+        minimum = min([self.violations[c] for c in candidates])
         result = []
         for c in candidates:
             if self.violations[c] == minimum:
                 result.append(c)
+        assert len(result)
         return result
-
-Candidate._keyType = Constraint
-Constraint._keyType = Candidate
 
 class OTobject:
     def __init__(self, input, constraints, candidates):
@@ -47,21 +46,17 @@ class OTobject:
         self.constraints = constraints
         for c in constraints:
             assert isinstance(c, Constraint)
-        
-        if candidates[0].violations and not constraints[0].violations:
-            for con in constraints:
-                con.setViolations({can: can.violations[con] for can in candidates})
-        elif constraints[0].violations and not candidates[0].violations:
-            for can in candidates:
-                can.setViolations({con: con.violations[can] for con in constraints})
 
     @classmethod
     def fromMatrix(cls, matrix):
         input = matrix[0][0]
+        logging.debug('Input: ' + str(input))
         constraints = [Constraint(con) for con in matrix[0][1:]]
         candidates = [Candidate(row[0]) for row in matrix[1:]]
         for can, row in zip(candidates, matrix[1:]):
-            can.setViolations({con: int(v) for con, v in zip(constraints, row[1:])})
+            for con, violations in zip(constraints, row[1:]):
+                logging.debug('{}({}): {}'.format(str(con), str(can), str(violations)))
+                con.addViolations({can: int(violations)})
         return cls(input, constraints, candidates)
 
     def getConstraintList(self):
@@ -162,24 +157,90 @@ class OTsystem:
 
 
 if __name__ == '__main__':
-    """
-    system = OTsystem.fromOTW('./testing/testVT.csv')
-    assert len(system.tableaux) == 4
-    assert len(system.getConstraintList()) == 5
-    assert len(system.tableaux[0].candidates) == 2
-    assert len(system.tableaux[3].candidates) == 8
-    assert len(LEG.fromTableau(system.tableaux[0]).candidates) == 2
+    import unittest
+    #logging.basicConfig(level=logging.DEBUG)
+
+    class TestConstraint(unittest.TestCase):
+        def setUp(self):
+            self.candidate = Candidate('Test')
+            self.constraint = Constraint('Test')
+
+        def test__init__(self):
+            self.assertIsNotNone(Constraint(''))
+            self.assertRaises(Exception, Constraint, 'Test', violations={'String': 0})
+            self.assertRaises(Exception, Constraint, 'Test', violations={self.candidate: 'String'})
+
+        def test_addViolations(self):
+            self.constraint2 = Constraint('Test')
+            
+            self.constraint2.addViolations({self.candidate: 0})
+            self.assertNotEqual(self.constraint.violations, self.constraint2.violations)
+
+            self.assertRaises(Exception, self.constraint.addViolations, 0)
+            self.assertRaises(Exception, self.constraint.addViolations, {'String': 0})
+            self.assertRaises(Exception, self.constraint.addViolations, {self.candidate: '0'})
+
+        def test_filter(self):
+            self.candidate = lambda : Candidate('Test')
+            self.allPassing = {self.candidate(): __ for __ in [0, 0, 0, 0, 0]}
+            self.mostPassing = {self.candidate(): __ for __ in [0, 0, 0, 1, 1]}
+            self.somePassing = {self.candidate(): __ for __ in [0, 0, 1, 1, 1]}
+            self.onePassing = {self.candidate(): __ for __ in range(5)}
+
+            self.constraint.addViolations(self.allPassing)
+            self.constraint.addViolations(self.mostPassing)
+            self.constraint.addViolations(self.somePassing)
+            self.constraint.addViolations(self.onePassing)
+
+            self.assertEqual(len(self.constraint.filter(self.allPassing)), 5)
+            self.assertEqual(len(self.constraint.filter(self.mostPassing)), 3)
+            self.assertEqual(len(self.constraint.filter(self.somePassing)), 2)
+            self.assertEqual(len(self.constraint.filter(self.onePassing)), 1)
+
+    class TestOTsystem(unittest.TestCase):
+        def test_01_fromOTW(self):
+            #setup
+            self.system = OTsystem.fromOTW('./testing/testVT.csv')
+
+            self.assertEqual(len(self.system.tableaux), 4)
+            self.assertEqual(len(self.system.getConstraintList()), 5)
+            self.assertEqual(len(self.system.tableaux[0].candidates), 2)
+            self.assertEqual(len(self.system.tableaux[1].candidates), 4)
+            self.assertEqual(len(self.system.tableaux[2].candidates), 4)
+            self.assertEqual(len(self.system.tableaux[3].candidates), 8)
+
+            for tableau in self.system.tableaux:
+                #validate special properties of violations in ./testing/testVT.csv
+                for candidate, index in zip(tableau.candidates, range(len(tableau.candidates))):
+                    checkInt = tableau.constraints[0].violations[candidate]
+                    self.assertEqual(checkInt, index)
+                    for violations in [con.violations[candidate] for con in tableau.constraints[1:]]:
+                        self.assertTrue(violations > checkInt or violations == 0)
+                        checkInt = violations
+        
+        def test_02_toOTW(self):
+            #make sure the exported file works in otw, then assert import/export equal
+            pass
+
+        def test_03_getOptima(self):
+            #setup
+            self.system = OTsystem.fromOTW('./testing/nGX.csv')
+            self.optima = self.system.getOptima()
+
+            self.assertEqual(len(self.optima.tableaux[0].candidates), 2)
+            self.assertEqual(len(self.optima.tableaux[1].candidates), 8)
+            self.assertEqual(len(self.optima.tableaux[2].candidates), 6)
+            self.assertEqual(len(self.optima.tableaux[3].candidates), 12)
+
+            for optimal, original in zip(self.optima.tableaux, self.system.tableaux):
+                for optimum in optimal.candidates:
+                    self.assertIn(optimum, original.candidates)
+
+
+    unittest.main()
+            
+    #self.assertTrue(len(LEG.fromTableau(system.tableaux[0]).candidates) == 2)
     #print(system.tableaux[0].candidates[0])
     #print(LEG.fromTableau(system.tableaux[3]).evaluate()[0])
     #print(system.tableaux[0].getLEGs())
-    optima = system.getOptima()
-    print([[c.value for c in t.candidates] for t in optima.tableaux])
-    system.toOTW('./testing/testExport.csv')
-    print('green')
-    """
-
-    nGX = OTsystem.fromOTW('./testing/nGX.csv')
-    tab = nGX.tableaux[1]
-    optima = tab.getOptima()
-    print([__.value for __ in optima])
         
