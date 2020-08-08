@@ -1,15 +1,19 @@
 import OTobjects
 from OTobjects import Candidate, Constraint
+from typing import Any, Collection, Mapping, Sequence, Tuple
 
 class LEG(OTobjects.OTtable):
     """Linear Extenion of Grammar. OTtable with linearly ordered constraints"""
     
+    def __init__(self, input: Any, constraints: Sequence[Constraint], candidates: Collection[Candidate]):
+        super().__init__(input, constraints, candidates)
+
     #Move to Tableau?
     @classmethod
     def fromTableau(cls, tableau):
         return cls(tableau.input, tableau.constraints, tableau.candidates)
     
-    def evaluate(self):
+    def evaluate(self) -> Tuple[Candidate]:
         """Return list of optimal candidates under this ordering"""
 
         passing = self.constraints[0].filter(self.candidates)
@@ -21,7 +25,7 @@ class LEG(OTobjects.OTtable):
 class Tableau(OTobjects.OTtable):
     """OTtable with unordered constraint set"""
 
-    def getOptima(self):
+    def getOptima(self) -> Tuple[Candidate]:
         """Return list of possible optima as arise from every inear order"""
 
         optima = []
@@ -51,17 +55,17 @@ class Tableau(OTobjects.OTtable):
 class OTsystem:
     """A collection of Tableau instances with the same constraint sets"""
 
-    def getConstraintList(self):
+    def getConstraintList(self) -> Tuple[Constraint]:
         """Return the list of constraints shared by all Tableau instances"""
 
         return self.tableaux[0].getConstraintList()
 
-    def getOptima(self):
+    def getOptima(self) -> 'OTsystem':
         """Return a new OTsystem with only possible optima in each Tableau"""
 
         return OTsystem([Tableau(t.input, t.constraints, t.getOptima()) for t in self.tableaux])
 
-    def __init__(self, tableaux):
+    def __init__(self, tableaux: Collection[Tableau]):
         """tableaux: [Tableau, ], all must have the equivilant constraint sets"""
 
         self.tableaux = tableaux
@@ -70,7 +74,7 @@ class OTsystem:
             assert t.getConstraintList() == self.getConstraintList()
 
     @classmethod
-    def fromOTW(cls, filepath):
+    def fromOTW(cls, filepath: str) -> 'OTsystem':
         """Return new OTsystem parsed from OTWorkplace formatted file"""
 
         import csv
@@ -96,12 +100,12 @@ class OTsystem:
 
     #TODO re-evaluate this:
     @staticmethod
-    def _writeCandidates(csv_writer, candidates, constraints):
+    def _writeCandidates(csv_writer, candidates: Sequence[Candidate], constraints: Sequence[Constraint]):
         for cand in candidates:
             violations = [con.violations[cand] for con in constraints]
             csv_writer.writerow(['', str(cand), ''] + violations)
 
-    def toOTW(self, filepath):
+    def toOTW(self, filepath: str) -> None:
         """Export to OTWorkplace compatable file"""
 
         import csv

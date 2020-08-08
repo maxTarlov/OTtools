@@ -1,9 +1,13 @@
 import logging
+from typing import Any, Collection, Mapping, Sequence, Tuple
 
+
+#Question: if the goal is to ensure everything has a non-repr __str__,
+#maybe a generic type should be defined instead
 class TableauObject:
     """Metaclass for objects contained in an OTtable"""
 
-    def __init__(self, value):
+    def __init__(self, value: Any):
         """value can be of any type, but must be able to cast to str"""
         self.value = value
 
@@ -18,7 +22,7 @@ class Candidate(TableauObject):
 class Constraint(TableauObject):
     """Representation of a constraint and mapping of candidate to violations"""
 
-    def __init__(self, value, violations=None):
+    def __init__(self, value: Any, violations: Mapping[Candidate, int]=None):
         """value must be castable to str, violations: {Candidate: int, }"""
 
         self.value = value
@@ -29,7 +33,7 @@ class Constraint(TableauObject):
             assert isinstance(v, int)
         self.violations = violations
 
-    def addViolations(self, violations):
+    def addViolations(self, violations: Mapping[Candidate, int]) -> None:
         """violations: {Candidate: int, }"""
 
         assert violations.items()
@@ -39,7 +43,7 @@ class Constraint(TableauObject):
             assert isinstance(v, int)
             self.violations[k] = v
     
-    def filter(self, candidates):
+    def filter(self, candidates: Collection[Candidate]) -> Tuple[Candidate]:
         """Returns subset of provided candidates with minimum number of violations"""
 
         minimum = min([self.violations[c] for c in candidates])
@@ -53,7 +57,7 @@ class Constraint(TableauObject):
 class OTtable:
     """Metaclass relating input/UR, candidates, constraints and violations"""
 
-    def __init__(self, input, constraints, candidates):
+    def __init__(self, input: Any, constraints: Collection[Constraint], candidates: Collection[Candidate]):
         """input: any, constraints: [Constraint, ], candidates: [Candidates, ]"""
 
         self.input = input
@@ -65,7 +69,7 @@ class OTtable:
             assert isinstance(c, Constraint)
 
     @classmethod
-    def fromMatrix(cls, matrix):
+    def fromMatrix(cls, matrix: Sequence[Sequence]) -> 'OTtable':
         """
         matrix: [[input/UR, Constraint, ...],
                  [Canidate, violations (int), ...],
@@ -82,7 +86,7 @@ class OTtable:
                 con.addViolations({can: int(violations)})
         return cls(input, constraints, candidates)
 
-    def getConstraintList(self):
+    def getConstraintList(self) -> Tuple[Constraint]:
         """Return list of constraints in string form"""
 
         return [str(c) for c in self.constraints]
